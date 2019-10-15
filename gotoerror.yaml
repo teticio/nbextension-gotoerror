@@ -1,0 +1,6 @@
+Type: Jupyter Notebook Extension
+Name: Goto Error
+Description: Clicking on errors opens source file.
+Link: README.md
+Main: main.js
+Compatibility: 4.x, 5.x
