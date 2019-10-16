@@ -35,19 +35,7 @@ define([
         this.close_button.click(function () {
             gotoerror.collapse();
         });
-
-        // create my cell
-        var cell = this.cell = new CodeCell(nb.kernel, {
-            events: nb.events,
-            config: nb.config,
-            keyboard_manager: nb.keyboard_manager,
-            notebook: nb,
-            tooltip: nb.tooltip,
-        });
-        cell.set_input_prompt();
-        this.element.append($("<div/>").addClass('cell-wrapper').append(this.cell.element));
-        cell.render();
-        cell.refresh();
+        this.element.append($("<div id='nbextension-gotoerror-code'>"));
         this.collapse();
     
         // finally, add me to the page
@@ -70,9 +58,7 @@ define([
             height: site_height,
         }, 200);
         this.close_button.show();
-        this.cell.element.show();
-        this.cell.focus_editor();
-        this.cell.set_text(url);
+        $("#nbextension-gotoerror-code").load(url);
         $("#notebook-container").css('margin-left', 0);
     };
 
@@ -83,7 +69,6 @@ define([
             height: 0,
         }, 100);
         this.close_button.hide();
-        this.cell.element.hide();
     };
 
     var apply_patches = function () {
