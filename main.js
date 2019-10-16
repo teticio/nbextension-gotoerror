@@ -1,3 +1,5 @@
+var gotoerror;
+
 define([
     'base/js/namespace',
     'jquery',
@@ -16,51 +18,6 @@ define([
     codecell
 ) {
     "use strict";
-    var apply_patches = function () {
-
-        // override
-        outputarea.OutputArea.prototype.append_error = function (json) {
-            var tb = json.traceback;
-            if (tb !== undefined && tb.length > 0) {
-                var toinsert = this.create_output_area()
-                var subarea = this.create_output_subarea({}, "output_text", 'text/plain');
-                var len = tb.length;
-                var s
-                
-                for (var i=0; i<len; i++) {
-                    var ansi_re = /\x1b\[(.*?)([@-~])/g;
-                    s = tb[i] + '\n';
-                    var start = ansi_re.exec(s);
-                    var end = ansi_re.exec(s);
-                    
-                    // grab filename
-                    if (start && end) {
-                        var filename = s.substring(start.index + start[0].length, end.index);
-                        
-                        // if it is in site-packages, create a link to it
-                        var match = filename.search('site-packages');
-                        if (match > -1) {
-                            var url = window.location.href.split('/')
-                            url = url[0] + '//' + url[2] + '/' + filename.substring(match);
-                            var eol = s.search('\\n')
-                            var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
-                            var t = '<a target="_blank" href="' + url + '" class="ansi-green-intense-fg ansi-bold">' + filename + '</a>' + rest_of_line
-                            subarea.append($("<pre/>").html(t));
-                            s = s.substring(eol+1);
-                        }
-                    }
-                    
-                    // add the rest of the lines
-                    subarea.append($("<pre/>").html(utils.fixConsole(s)));
-                }
-                
-                subarea.append('\n');
-                toinsert.append(subarea);
-                toinsert.addClass('output_error');
-                this._safe_append(toinsert);
-            }
-        };
-    }
 
     // largely copied from https://github.com/minrk/nbextension-scratchpad/
     var CodeCell = codecell.CodeCell;
@@ -75,12 +32,7 @@ define([
         // create elements
         this.element = $("<div id='nbextension-gotoerror'>");
         this.close_button = $("<i>").addClass("fa fa-caret-square-o-down gotoerror-btn gotoerror-close");
-        this.open_button = $("<i>").addClass("fa fa-caret-square-o-up gotoerror-btn gotoerror-open");
         this.element.append(this.close_button);
-        this.element.append(this.open_button);
-        this.open_button.click(function () {
-            gotoerror.expand();
-        });
         this.close_button.click(function () {
             gotoerror.collapse();
         });
@@ -131,16 +83,16 @@ define([
         return false;
     };
 
-    Gotoerror.prototype.expand = function () {
+    Gotoerror.prototype.expand = function (url) {
         this.collapsed = false;
         var site_height = $("#site").height();
         this.element.animate({
             height: site_height,
         }, 200);
-        this.open_button.hide();
         this.close_button.show();
         this.cell.element.show();
         this.cell.focus_editor();
+        this.cell.set_text(url);
         $("#notebook-container").css('margin-left', 0);
     };
 
@@ -151,7 +103,6 @@ define([
             height: 0,
         }, 100);
         this.close_button.hide();
-        this.open_button.show();
         this.cell.element.hide();
     };
 
@@ -170,15 +121,67 @@ define([
             this.notebook.execute_selected_cells();
         }
     };
+
+    var apply_patches = function () {
+
+        // override
+        outputarea.OutputArea.prototype.append_error = function (json) {
+            var tb = json.traceback;
+            if (tb !== undefined && tb.length > 0) {
+                var toinsert = this.create_output_area()
+                var subarea = this.create_output_subarea({}, "output_text", 'text/plain');
+                var len = tb.length;
+                var s
+                
+                for (var i=0; i<len; i++) {
+                    var ansi_re = /\x1b\[(.*?)([@-~])/g;
+                    s = tb[i] + '\n';
+                    var start = ansi_re.exec(s);
+                    var end = ansi_re.exec(s);
+                    
+                    // grab filename
+                    if (start && end) {
+                        var filename = s.substring(start.index + start[0].length, end.index);
+                        
+                        // if it is in site-packages, create a link to it
+                        var match = filename.search('site-packages');
+                        if (match > -1) {
+                            var url = window.location.href.split('/')
+                            url = url[0] + '//' + url[2] + '/' + filename.substring(match).replace(/\\/g, '/');
+                            var eol = s.search('\\n')
+                            var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
+                            var line = $('<pre/>');
+                            var link = $('<span/>').addClass("ansi-green-intense-fg ansi-bold");
+                            link.text(filename);
+                            link.click(new Function('gotoerror.expand("'+ url +'")'));
+                            link.append(rest_of_line);
+                            line.append(link);
+                            subarea.append(line);
+                            s = s.substring(eol+1);
+                        }
+                    }
+                    
+                    // add the rest of the lines
+                    subarea.append($("<pre/>").html(utils.fixConsole(s)));
+                }
+                
+                subarea.append('\n');
+                toinsert.append(subarea);
+                toinsert.addClass('output_error');
+                this._safe_append(toinsert);
+            }
+        };
+    }
     
     function setup_gotoerror () {
         // lazy, hook it up to Jupyter.notebook as the handle on all the singletons
-        return new Gotoerror(Jupyter.notebook);
+        gotoerror = new Gotoerror(Jupyter.notebook)
+        return gotoerror;
     }
     
     function load_ipython_extension() {
         apply_patches();
-
+        
         // add css
         var link = document.createElement("link");
         link.type = "text/css";
