@@ -15,8 +15,8 @@
 }
 
 .gotoerror-btn {
-    float: right;
-    margin-right: 24px;
+    float: left;
+    margin-left: 24px;
     opacity: 0.2;
     font-size: 24px;
     z-index: 106;
@@ -29,11 +29,7 @@
 .gotoerror-close {
     display: none;
     position: absolute;
-    float: right;
-    bottom: 8px;
-    right: 0;
-}
-
-.gotoerror-open {
-    margin-top: -32px;
+    float: left;
+    top: 8px;
+    left: 0;
 }

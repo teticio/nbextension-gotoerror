@@ -29,9 +29,8 @@ define([
         this.km = nb.keyboard_manager;
         this.collapsed = true;
 
-        // create elements
         this.element = $("<div id='nbextension-gotoerror'>");
-        this.close_button = $("<i>").addClass("fa fa-caret-square-o-down gotoerror-btn gotoerror-close");
+        this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
         this.element.append(this.close_button);
         this.close_button.click(function () {
             gotoerror.collapse();
@@ -50,26 +49,7 @@ define([
         cell.render();
         cell.refresh();
         this.collapse();
-
-        // override ctrl/shift-enter to execute me if I'm focused instead of the notebook's cell
-        var execute_and_select_action = this.km.actions.register({
-            handler: $.proxy(this.execute_and_select_event, this),
-        }, 'gotoerror-execute-and-select');
-        var execute_action = this.km.actions.register({
-            handler: $.proxy(this.execute_event, this),
-        }, 'gotoerror-execute');
-        var toggle_action = this.km.actions.register({
-            handler: $.proxy(this.toggle, this),
-        }, 'gotoerror-toggle');
     
-        var shortcuts = {
-            'shift-enter': execute_and_select_action,
-            'ctrl-enter': execute_action,
-            'ctrl-b': toggle_action,
-        }
-        this.km.edit_shortcuts.add_shortcuts(shortcuts);
-        this.km.command_shortcuts.add_shortcuts(shortcuts);
-
         // finally, add me to the page
         $("body").append(this.element);
     };
@@ -106,22 +86,6 @@ define([
         this.cell.element.hide();
     };
 
-    Gotoerror.prototype.execute_and_select_event = function (evt) {
-        if (utils.is_focused(this.element)) {
-            this.cell.execute();
-        } else {
-            this.notebook.execute_cell_and_select_below();
-        }
-    };
-
-    Gotoerror.prototype.execute_event = function (evt) {
-        if (utils.is_focused(this.element)) {
-            this.cell.execute();
-        } else {
-            this.notebook.execute_selected_cells();
-        }
-    };
-
     var apply_patches = function () {
 
         // override
@@ -151,7 +115,7 @@ define([
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                             var line = $('<pre/>');
-                            var link = $('<span/>').addClass("ansi-green-intense-fg ansi-bold");
+                            var link = $('<span/>').addClass("ansi-green-fg");
                             link.text(filename);
                             link.click(new Function('gotoerror.expand("'+ url +'")'));
                             link.append(rest_of_line);
