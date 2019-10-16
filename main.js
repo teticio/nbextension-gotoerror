@@ -111,7 +111,7 @@ define([
                         var match = filename.search('site-packages');
                         if (match > -1) {
                             var url = window.location.href.split('/')
-                            url = url[0] + '//' + url[2] + '/' + filename.substring(match).replace(/\\/g, '/');
+                            url = url[0] + '//' + url[2] + '/tree/' + filename.substring(match).replace(/\\/g, '/');
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                             var line = $('<pre/>');
