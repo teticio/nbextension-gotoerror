@@ -41,10 +41,11 @@ define([
                         var match = filename.search('site-packages');
                         if (match > -1) {
                             var url = window.location.href.split('/')
-                            url = url[0] + '//' + url[2] + filename.substring(match);
+                            url = url[0] + '//' + url[2] + '/' + filename.substring(match);
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
-                            subarea.append('<a target="_blank" href="' + url + '" class="ansi-green-fg">' + filename + '</a>' + rest_of_line);
+                            var t = '<a target="_blank" href="' + url + '" class="ansi-green-intense-fg ansi-bold">' + filename + '</a>' + rest_of_line
+                            subarea.append($("<pre/>").html(t));
                             s = s.substring(eol+1);
                         }
                     }
