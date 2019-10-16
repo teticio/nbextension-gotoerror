@@ -105,6 +105,7 @@ define([
                     
                     // grab filename
                     if (start && end) {
+                        var formated_filename = s.substring(start.index, end.index + end[0].length);
                         var filename = s.substring(start.index + start[0].length, end.index);
                         
                         // if it is in site-packages, create a link to it
@@ -115,8 +116,8 @@ define([
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                             var line = $('<pre/>');
-                            var link = $('<span/>').addClass("ansi-green-fg");
-                            link.text(filename);
+                            var link = $('<span/>');
+                            link.html(utils.fixConsole(formated_filename));
                             link.click(new Function('gotoerror.expand("'+ url +'")'));
                             link.append(rest_of_line);
                             line.append(link);
