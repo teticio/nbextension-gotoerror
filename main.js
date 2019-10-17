@@ -72,14 +72,14 @@ define([
             common_config: common_config
         });
         $("#gotoerror-code").text('');
-        this.editor = new editmod.Editor('#gotoerror-code', {
+        this.editor = new editmod.Editor("#gotoerror-code", {
             base_url: base_url,
             events: events,
             contents: contents,
             file_path: file_path,
             config: config,
         });
-        this.editor.codemirror.setOption("readOnly", true)
+        this.editor.codemirror.setOption('readOnly', true)
         this.editor.load();
         this.editor.codemirror.setCursor(300);
         
@@ -123,10 +123,10 @@ define([
                             var file_path = filename.substring(match).replace(/\\/g, '/');
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
-                            var line = $('<pre/>');
-                            var link = $('<span/>');
+                            var line = $("<pre/>");
+                            var link = $("<span/>");
                             link.html(utils.fixConsole(formated_filename));
-                            link.click(new Function('gotoerror.expand("'+ file_path +'")'));
+                            link.click(new Function("gotoerror.expand('"+ file_path +"')"));
                             link.append(rest_of_line);
                             line.append(link);
                             subarea.append(line);
@@ -140,7 +140,7 @@ define([
                 
                 subarea.append('\n');
                 toinsert.append(subarea);
-                toinsert.addClass('output_error');
+                toinsert.addClass("output_error");
                 this._safe_append(toinsert);
             }
         };
