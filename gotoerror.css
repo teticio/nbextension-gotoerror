@@ -9,13 +9,8 @@
     z-index: 105;
 }
 
-#nbextension-gotoerror .cell-wrapper {
-    height: 100%;
-    overflow: auto;
-}
-
 .gotoerror-btn {
-    float: left;
+    float: right;
     margin-left: 24px;
     opacity: 0.2;
     font-size: 24px;
@@ -29,7 +24,20 @@
 .gotoerror-close {
     display: none;
     position: absolute;
-    float: left;
+    float: right;
     top: 8px;
-    left: 0;
+    right: 0;
+}
+
+.gotoerror-filename {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.gotoerror-code {
+    height: 100%;
+    overflow: auto;
 }

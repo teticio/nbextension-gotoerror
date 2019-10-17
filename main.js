@@ -40,8 +40,8 @@ define([
         this.close_button.click(function () {
             gotoerror.collapse();
         });
-        this.element.append($("<div id='gotoerror-filename'>"));
-        this.element.append($("<div id='gotoerror-code'>"));
+        this.element.append($("<div id='gotoerror-filename'>").addClass('gotoerror-filename'));
+        this.element.append($("<div id='gotoerror-code'>").addClass('gotoerror-code'));
         this.collapse();
     
         // finally, add me to the page
