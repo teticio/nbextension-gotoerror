@@ -1,27 +1,32 @@
+// needs to be global because we are creating Functions on the fly
 var gotoerror;
 
 define([
-    'base/js/namespace',
     'jquery',
     'require',
-    'notebook/js/outputarea',
+    'contents',
+    'base/js/namespace',
     'base/js/utils',
     'base/js/events',
-    'notebook/js/codecell',
+    'services/config',
+    'edit/js/editor',
+    'notebook/js/outputarea',
+    'codemirror/lib/codemirror',
 ], function(
-    Jupyter,
     $,
     requirejs,
-    outputarea,
+    contents_service,
+    Jupyter,
     utils,
     events,
-    codecell
+    configmod,
+    editmod,
+    outputarea,
+    CodeMirror
 ) {
     "use strict";
 
     // largely copied from https://github.com/minrk/nbextension-scratchpad/
-    var CodeCell = codecell.CodeCell;
-
     var Gotoerror = function (nb) {
         var gotoerror = this;
         this.notebook = nb;
@@ -35,7 +40,8 @@ define([
         this.close_button.click(function () {
             gotoerror.collapse();
         });
-        this.element.append($("<div id='nbextension-gotoerror-code'>"));
+        this.element.append($("<div id='gotoerror-filename'>"));
+        this.element.append($("<div id='gotoerror-code'>"));
         this.collapse();
     
         // finally, add me to the page
@@ -51,14 +57,33 @@ define([
         return false;
     };
 
-    Gotoerror.prototype.expand = function (url) {
+    Gotoerror.prototype.expand = function (file_path) {
         this.collapsed = false;
         var site_height = $("#site").height();
         this.element.animate({
             height: site_height,
         }, 200);
         this.close_button.show();
-        $("#nbextension-gotoerror-code").load(url);
+        
+        $("#gotoerror-filename").text(file_path);
+        var base_url = utils.get_body_data('baseUrl');
+        var config = new configmod.ConfigSection('edit', {base_url: base_url});
+        config.load();
+        var common_config = new configmod.ConfigSection('common', {base_url: base_url});
+        common_config.load();
+        var contents = new contents_service.Contents({
+            base_url: base_url,
+            common_config: common_config
+        });
+        this.editor = new editmod.Editor('#gotoerror-code', {
+            base_url: base_url,
+            events: events,
+            contents: contents,
+            file_path: file_path,
+            config: config,
+        });
+        this.editor.load();
+        
         $("#notebook-container").css('margin-left', 0);
     };
 
@@ -96,14 +121,13 @@ define([
                         // if it is in site-packages, create a link to it
                         var match = filename.search('site-packages');
                         if (match > -1) {
-                            var url = window.location.href.split('/')
-                            url = url[0] + '//' + url[2] + '/tree/' + filename.substring(match).replace(/\\/g, '/');
+                            var file_path = filename.substring(match).replace(/\\/g, '/');
                             var eol = s.search('\\n')
                             var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                             var line = $('<pre/>');
                             var link = $('<span/>');
                             link.html(utils.fixConsole(formated_filename));
-                            link.click(new Function('gotoerror.expand("'+ url +'")'));
+                            link.click(new Function('gotoerror.expand("'+ file_path +'")'));
                             link.append(rest_of_line);
                             line.append(link);
                             subarea.append(line);
