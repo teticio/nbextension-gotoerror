@@ -29,6 +29,7 @@ define([
     // largely copied from https://github.com/minrk/nbextension-scratchpad/
     var Gotoerror = function (nb) {
         var gotoerror = this;
+        this.events = nb.events
         
         this.element = $("<div id='nbextension-gotoerror'>");
         this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
@@ -80,8 +81,14 @@ define([
             config: config,
         });
         this.editor.codemirror.setOption('readOnly', true)
+        var that = this;
+        this.events.on('file_loaded.Editor', function (evt, model) {
+            that.editor.codemirror.setCursor(300);
+        });
+        this.events.on('file_load_failed.Editor', function (evt, model) {
+            $("#gotoerror-code").html('Error loading file')
+        });
         this.editor.load();
-        this.editor.codemirror.setCursor(300);
         
         $("#notebook-container").css('margin-left', 0);
     };
