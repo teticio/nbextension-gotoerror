@@ -29,11 +29,7 @@ define([
     // largely copied from https://github.com/minrk/nbextension-scratchpad/
     var Gotoerror = function (nb) {
         var gotoerror = this;
-        this.notebook = nb;
-        this.kernel = nb.kernel;
-        this.km = nb.keyboard_manager;
-        this.collapsed = true;
-
+        
         this.element = $("<div id='nbextension-gotoerror'>");
         this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
         this.element.append(this.close_button);
@@ -75,6 +71,7 @@ define([
             base_url: base_url,
             common_config: common_config
         });
+        $("#gotoerror-code").text('');
         this.editor = new editmod.Editor('#gotoerror-code', {
             base_url: base_url,
             events: events,
@@ -82,7 +79,9 @@ define([
             file_path: file_path,
             config: config,
         });
+        this.editor.codemirror.setOption("readOnly", true)
         this.editor.load();
+        this.editor.codemirror.setCursor(300);
         
         $("#notebook-container").css('margin-left', 0);
     };
