@@ -4,3 +4,10 @@ Description: Clicking on errors opens source file.
 Link: README.md
 Main: main.js
 Compatibility: 4.x, 5.x
+Parameters:
+- name: gotoerror.prefix
+  description: |
+    Wibble
+    Wobble.
+  input_type: string
+  default:

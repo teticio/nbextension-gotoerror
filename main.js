@@ -26,7 +26,10 @@ define([
 ) {
     "use strict";
 
-    // largely copied from https://github.com/minrk/nbextension-scratchpad/
+    var options = {
+        prefix: '',
+    };
+    
     var Gotoerror = function (nb) {
         var gotoerror = this;
         this.events = nb.events
@@ -37,8 +40,8 @@ define([
         this.close_button.click(function () {
             gotoerror.collapse();
         });
-        this.element.append($("<div id='gotoerror-filename'>").addClass('gotoerror-filename'));
-        this.element.append($("<div id='gotoerror-code'>").addClass('gotoerror-code'));
+        this.element.append($("<div>").addClass('gotoerror-filename'));
+        this.element.append($("<div>").addClass('gotoerror-code'));
         this.collapse();
     
         // finally, add me to the page
@@ -56,13 +59,10 @@ define([
 
     Gotoerror.prototype.expand = function (file_path, line_number) {
         this.collapsed = false;
-        var site_height = $("#site").height();
-        this.element.animate({
-            height: site_height,
-        }, 200);
+        this.element.css('height', '100%');
         this.close_button.show();
         
-        $("#gotoerror-filename").text(file_path);
+        $(".gotoerror-filename").text(file_path);
         var base_url = utils.get_body_data('baseUrl');
         var config = new configmod.ConfigSection('edit', {base_url: base_url});
         config.load();
@@ -72,23 +72,24 @@ define([
             base_url: base_url,
             common_config: common_config
         });
-        $("#gotoerror-code").text('');
-        this.editor = new editmod.Editor("#gotoerror-code", {
+        $(".gotoerror-code").text('');
+        this.editor = new editmod.Editor(".gotoerror-code", {
             base_url: base_url,
             events: events,
             contents: contents,
             file_path: file_path,
             config: config,
         });
-        this.editor.codemirror.setOption('readOnly', true)
+        this.editor.codemirror.setOption('readOnly', true);
         var that = this;
         this.events.on('file_loaded.Editor', function (evt, model) {
             if (line_number) {
-                that.editor.codemirror.setCursor(line_number);
+                that.editor.codemirror.setCursor({line: line_number - 1, ch: 0});
+                that.editor.codemirror.setSelection({line: line_number - 1, ch: 0}, {line: line_number, ch: 0});
             }
         });
         this.events.on('file_load_failed.Editor', function (evt, model) {
-            $("#gotoerror-code").html('Error loading file')
+            $(".gotoerror-code").html('Error loading file')
         });
         this.editor.load();
         
@@ -98,9 +99,7 @@ define([
     Gotoerror.prototype.collapse = function () {
         this.collapsed = true;
         $("#notebook-container").css('margin-left', 'auto');
-        this.element.animate({
-            height: 0,
-        }, 100);
+        this.element.css('height', '0');
         this.close_button.hide();
     };
 
@@ -121,37 +120,40 @@ define([
                     var start = ansi_re.exec(s);
                     var end = ansi_re.exec(s);
                     
-                    // grab filename
-                    if (start && end) {
-                        var formated_filename = s.substring(start.index, end.index + end[0].length);
-                        var filename = s.substring(start.index + start[0].length, end.index);
-                        
-                        // if it is in site-packages, create a link to it
-                        var match = filename.search('site-packages');
-                        if (match > -1) {
-                            var file_path = filename.substring(match).replace(/\\/g, '/');
-                            var eol = s.search('\\n')
-                            var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
-                            var line = $("<pre/>");
-                            var link = $("<span/>");
-                            link.html(utils.fixConsole(formated_filename));
-                            
-                            // extract line number
-                            var line_number_re = /^\x1b\[(.*?)([@-~])-*> +\d+/gm;
-                            var line_number = line_number_re.exec(s);
-                            if (line_number) {
-                                var number_re = /\d+$/g;
-                                line_number = line_number[0];
-                                line_number = number_re.exec(line_number);
-                                line_number = line_number[0];
-                            }
+                    try {
+                        // grab filename
+                        if (start && end) {
+                            var formated_filename = s.substring(start.index, end.index + end[0].length);
+                            var filename = s.substring(start.index + start[0].length, end.index).replace(/\\/g, '/');
+                            var root = options.prefix.replace(/\\/g, '/');
 
-                            link.click(new Function("gotoerror.expand('"+ file_path +"', " + line_number + ")"));
-                            link.append(rest_of_line);
-                            line.append(link);
-                            subarea.append(line);
-                            s = s.substring(eol+1);
+                            // if it is in site-packages, create a link to it
+                            var match = filename.search(root);
+                            if (match > -1) {
+                                var file_path = filename.substring(root.length);
+                                var eol = s.search('\\n')
+                                var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
+                                var line = $("<pre/>");
+                                var link = $("<span/>");
+                                link.html(utils.fixConsole(formated_filename));
+
+                                // extract line number
+                                var line_number_re = /^\x1b\[(.*?)([@-~])-*> +\d+/gm;
+                                var line_number = line_number_re.exec(s);
+                                if (line_number) {
+                                    var number_re = /\d+$/g;
+                                    line_number = number_re.exec(line_number[0])[0];
+                                }
+
+                                link.click(new Function("gotoerror.expand('"+ file_path +"', " + line_number + ")"));
+                                link.append(rest_of_line);
+                                line.append(link);
+                                subarea.append(line);
+                                s = s.substring(eol+1);
+                            }
                         }
+                    } catch(err) {
+                        console.error('nbextension gotoerror', 'unhandled error:', err);
                     }
                     
                     // add the rest of the lines
@@ -182,12 +184,18 @@ define([
         link.href = requirejs.toUrl("./gotoerror.css");
         document.getElementsByTagName("head")[0].appendChild(link);
 
-        // load when the kernel's ready
-        if (Jupyter.notebook.kernel) {
-            setup_gotoerror();
-        } else {
-            events.on('kernel_ready.Kernel', setup_gotoerror);
-        }
+        // setup things to run on loading config/notebook
+        Jupyter.notebook.config.loaded.then(function update_options_from_config () {
+            $.extend(true, options, Jupyter.notebook.config.data['gotoerror']);
+        }, {
+            
+        })
+        .then(function () {
+            if (Jupyter.notebook._fully_loaded) {
+                setup_gotoerror();
+            }
+            events.on('notebook_loaded.Notebook', setup_gotoerror);
+        });
     }
 
     return {
