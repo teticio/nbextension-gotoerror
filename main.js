@@ -63,12 +63,12 @@ define([
         return false;
     };
 
-    Gotoerror.prototype.expand = function (file_path, line_number) {
+    Gotoerror.prototype.expand = function (file_path, line_number, url) {
         this.collapsed = false;
         this.element.css('height', '100%');
         this.close_button.show();
         
-        $(".gotoerror-filename").text(file_path);
+        $(".gotoerror-filename").html('<a target="_blank" href="' + url + '">' + file_path + '</a>');
         // adjust height accordingly
         $('.gotoerror-code').height($("#nbextension-gotoerror").height() - $(".gotoerror-filename").outerHeight(true));
         
@@ -124,22 +124,25 @@ define([
                 var s
                 
                 for (var i=0; i<len; i++) {
-                    var ansi_re = /\x1b\[(.*?)([@-~])/g;
+                    var ansi_re = /^\x1b\[(.*?)([@-~])/g;
+                    var ansi_re2 = /(?<!^)\x1b\[(.*?)([@-~])/g;
                     s = tb[i] + '\n';
                     var start = ansi_re.exec(s);
-                    var end = ansi_re.exec(s);
+                    var end = ansi_re2.exec(s);
                     
                     try {
                         // grab filename
                         if (start && end) {
                             var formated_filename = s.substring(start.index, end.index + end[0].length);
-                            var filename = s.substring(start.index + start[0].length, end.index).replace(/\\/g, '/');
-                            var root = options.prefix.replace(/\\/g, '/');
+                            var filename = s.substring(start.index + start[0].length, end.index);
+                            var root = options.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
                             // if it is in site-packages, create a link to it
                             var match = filename.search(root);
                             if (match > -1) {
-                                var file_path = filename.substring(root.length);
+                                var file_path = filename.substring(root.length).replace(/\\/g, '/');
+                                var url = window.location.href.split('/');
+                                var url = url[0] + '//' + url[2] + '/' + file_path;
                                 var eol = s.search('\\n')
                                 var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                                 var line = $("<pre/>");
@@ -154,7 +157,7 @@ define([
                                     line_number = number_re.exec(line_number[0])[0];
                                 }
 
-                                link.click(new Function("gotoerror.expand('"+ file_path +"', " + line_number + ")"));
+                                link.click(new Function("gotoerror.expand('" + file_path + "', " + line_number + ", '" + url + "')"));
                                 link.append(rest_of_line);
                                 line.append(link);
                                 subarea.append(line);
