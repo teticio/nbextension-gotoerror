@@ -121,13 +121,15 @@ define([
                 var s
                 
                 for (var i=0; i<len; i++) {
-                    var ansi_re = /^\x1b\[(.*?)([@-~])/g;
-                    var ansi_re2 = /(?<!^)\x1b\[(.*?)([@-~])/g;
                     s = tb[i] + '\n';
-                    var start = ansi_re.exec(s);
-                    var end = ansi_re2.exec(s);
                     
+                    // just in case anything goes wrong
                     try {
+                        var ansi_re = /^\x1b\[(.*?)([@-~])/g;
+                        var ansi_re2 = /(?<!^)\x1b\[(.*?)([@-~])/g;
+                        var start = ansi_re.exec(s);
+                        var end = ansi_re2.exec(s);
+                        
                         // grab filename
                         if (start && end) {
                             var formated_filename = s.substring(start.index, end.index + end[0].length);
