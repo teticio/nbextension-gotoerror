@@ -7,7 +7,7 @@ Compatibility: 4.x, 5.x
 Parameters:
 - name: gotoerror.prefix
   description: |
-    Wibble
-    Wobble.
+    If your source code is in blah/site-packages/...then you need to make a symbolic link to
+    blah/site-packages called "site-packages" and set this parameter to blah
   input_type: string
   default:
