@@ -93,7 +93,6 @@ define([
         var that = this;
         this.events.on('file_loaded.Editor', function (evt, model) {
             if (line_number) {
-                that.editor.codemirror.setCursor({line: line_number - 1, ch: 0});
                 that.editor.codemirror.setSelection({line: line_number - 1, ch: 0}, {line: line_number, ch: 0});
             }
         });
@@ -135,7 +134,7 @@ define([
                         if (start && end) {
                             var formated_filename = s.substring(start.index, end.index + end[0].length);
                             var filename = s.substring(start.index + start[0].length, end.index).replace(/\\/g, '/');
-                            var root = options.prefix.replace(/\\/g, '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            var root = options.prefix.replace(/\\/g, '/');
 
                             // if it is in site-packages, create a link to it
                             var match = filename.search(root);
