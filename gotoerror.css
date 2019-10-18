@@ -37,6 +37,5 @@
 }
 
 .gotoerror-code {
-    height: calc(100% - 38px);
     overflow: auto;
 }
