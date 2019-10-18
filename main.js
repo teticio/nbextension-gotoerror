@@ -67,6 +67,7 @@ define([
         this.collapsed = false;
         this.element.css('height', '100%');
         this.close_button.show();
+        $("#notebook-container").css('margin-left', 0);
         
         $(".gotoerror-filename").html('<a target="_blank" href="' + url + '">' + file_path + '</a>');
         // adjust height accordingly
@@ -78,7 +79,7 @@ define([
         common_config.load();
         var contents = new contents_service.Contents({
             base_url: base_url,
-            common_config: common_config
+            common_config: common_config,
         });
         $(".gotoerror-code").text('');
         this.editor = new editmod.Editor(".gotoerror-code", {
@@ -99,8 +100,6 @@ define([
             $(".gotoerror-code").html('Error loading file')
         });
         this.editor.load();
-        
-        $("#notebook-container").css('margin-left', 0);
     };
 
     Gotoerror.prototype.collapse = function () {
