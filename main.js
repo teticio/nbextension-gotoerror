@@ -34,7 +34,7 @@ define([
         var gotoerror = this;
         this.events = nb.events
         
-        this.element = $("<div id='nbextension-gotoerror'>");
+        this.element = $("<div id='nbextension-gotoerror'>").addClass("input_area");
         this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
         this.element.append(this.close_button);
         this.close_button.click(function () {
