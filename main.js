@@ -43,7 +43,13 @@ define([
         this.element.append($("<div>").addClass('gotoerror-filename'));
         this.element.append($("<div>").addClass('gotoerror-code'));
         this.collapse();
-    
+
+        $(window).on('resize', function (evt) {
+            if (!this.collapsed) {
+                $('.gotoerror-code').height($("#nbextension-gotoerror").height() - $(".gotoerror-filename").outerHeight(true));
+            }
+        });
+        
         // finally, add me to the page
         $("body").append(this.element);
     };
@@ -63,6 +69,9 @@ define([
         this.close_button.show();
         
         $(".gotoerror-filename").text(file_path);
+        // adjust height accordingly
+        $('.gotoerror-code').height($("#nbextension-gotoerror").height() - $(".gotoerror-filename").outerHeight(true));
+        
         var base_url = utils.get_body_data('baseUrl');
         var config = new configmod.ConfigSection('edit', {base_url: base_url});
         config.load();
@@ -185,17 +194,16 @@ define([
         document.getElementsByTagName("head")[0].appendChild(link);
 
         // setup things to run on loading config/notebook
-        Jupyter.notebook.config.loaded.then(function update_options_from_config () {
-            $.extend(true, options, Jupyter.notebook.config.data['gotoerror']);
-        }, {
-            
-        })
-        .then(function () {
-            if (Jupyter.notebook._fully_loaded) {
-                setup_gotoerror();
-            }
-            events.on('notebook_loaded.Notebook', setup_gotoerror);
-        });
+        Jupyter.notebook.config.loaded
+            .then(function update_options_from_config () {
+                $.extend(true, options, Jupyter.notebook.config.data['gotoerror']);
+            })
+            .then(function () {
+                if (Jupyter.notebook._fully_loaded) {
+                    setup_gotoerror();
+                }
+                events.on('notebook_loaded.Notebook', setup_gotoerror);
+            });
     }
 
     return {
