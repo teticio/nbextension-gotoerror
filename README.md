@@ -16,3 +16,5 @@ Enable the extension:
 ```bash
 jupyter nbextension enable nbextension-gotoerror/main
 ```
+
+![demo](demo.gif)
