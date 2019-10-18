@@ -54,7 +54,7 @@ define([
         return false;
     };
 
-    Gotoerror.prototype.expand = function (file_path) {
+    Gotoerror.prototype.expand = function (file_path, line_number) {
         this.collapsed = false;
         var site_height = $("#site").height();
         this.element.animate({
@@ -83,7 +83,9 @@ define([
         this.editor.codemirror.setOption('readOnly', true)
         var that = this;
         this.events.on('file_loaded.Editor', function (evt, model) {
-            that.editor.codemirror.setCursor(300);
+            if (line_number) {
+                that.editor.codemirror.setCursor(line_number);
+            }
         });
         this.events.on('file_load_failed.Editor', function (evt, model) {
             $("#gotoerror-code").html('Error loading file')
@@ -133,7 +135,18 @@ define([
                             var line = $("<pre/>");
                             var link = $("<span/>");
                             link.html(utils.fixConsole(formated_filename));
-                            link.click(new Function("gotoerror.expand('"+ file_path +"')"));
+                            
+                            // extract line number
+                            var line_number_re = /^\x1b\[(.*?)([@-~])-*> +\d+/gm;
+                            var line_number = line_number_re.exec(s);
+                            if (line_number) {
+                                var number_re = /\d+$/g;
+                                line_number = line_number[0];
+                                line_number = number_re.exec(line_number);
+                                line_number = line_number[0];
+                            }
+
+                            link.click(new Function("gotoerror.expand('"+ file_path +"', " + line_number + ")"));
                             link.append(rest_of_line);
                             line.append(link);
                             subarea.append(line);
