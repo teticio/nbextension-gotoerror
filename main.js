@@ -134,15 +134,15 @@ define([
                         // grab filename
                         if (start && end) {
                             var formated_filename = s.substring(start.index, end.index + end[0].length);
-                            var filename = s.substring(start.index + start[0].length, end.index);
-                            var root = options.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            var filename = s.substring(start.index + start[0].length, end.index).replace(/\\/g, '/');
+                            var root = options.prefix.replace(/\\/g, '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
                             // if it is in site-packages, create a link to it
                             var match = filename.search(root);
                             if (match > -1) {
-                                var file_path = filename.substring(root.length).replace(/\\/g, '/');
+                                var file_path = filename.replace(root, '');
                                 var url = window.location.href.split('/');
-                                var url = url[0] + '//' + url[2] + '/' + file_path;
+                                var url = url[0] + '//' + url[2] + ('/edit/' + file_path).replace('//', '/');
                                 var eol = s.search('\\n')
                                 var rest_of_line = utils.fixConsole(s.substring(end.index + end[0].length, eol));
                                 var line = $("<pre/>");
