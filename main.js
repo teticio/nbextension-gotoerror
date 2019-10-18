@@ -32,7 +32,7 @@ define([
     
     var Gotoerror = function (nb) {
         var gotoerror = this;
-        this.events = nb.events
+        this.events = nb.events;
         
         this.element = $("<div id='nbextension-gotoerror'>").addClass("input_area");
         this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
@@ -71,7 +71,6 @@ define([
         $(".gotoerror-filename").html('<a target="_blank" href="' + url + '">' + file_path + '</a>');
         // adjust height accordingly
         $('.gotoerror-code').height($("#nbextension-gotoerror").height() - $(".gotoerror-filename").outerHeight(true));
-        
         var base_url = utils.get_body_data('baseUrl');
         var config = new configmod.ConfigSection('edit', {base_url: base_url});
         config.load();
