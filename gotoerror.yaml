@@ -7,7 +7,6 @@ Compatibility: 4.x, 5.x
 Parameters:
 - name: gotoerror.prefix
   description: |
-    If your source code is in blah/site-packages/...then you need to make a symbolic link to
-    blah/site-packages called "site-packages" and set this parameter to blah
+    If your source code is in blah/site-packages/...then you need to make a symbolic link to blah/site-packages called "site-packages" and set this parameter to blah. See README for more details.
   input_type: string
   default:
