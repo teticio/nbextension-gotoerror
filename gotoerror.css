@@ -5,37 +5,46 @@
     width: 50%;
     border-left: 1px solid #aaa;
     border-top: 1px solid #aaa;
+    box-shadow: -3px 3px 5px #aaa;
     z-index: 105;
 }
 
-.gotoerror-btn {
+.gotoerror-close-btn {
+    display: none;
+    position: relative;
     float: right;
-    margin-left: 24px;
-    opacity: 0.2;
-    font-size: 24px;
+    font-size: 16px;
+    padding-top: 8px;
     z-index: 106;
+    opacity: 0.2;
 }
 
-.gotoerror-btn:hover {
+.gotoerror-close-btn:hover {
     opacity: 1;
 }
 
-.gotoerror-close {
-    display: none;
-    position: absolute;
-    float: right;
-    top: 8px;
-    right: 0;
-}
-
 .gotoerror-filename {
-    text-align: center;
+    text-align: left;
     font-size: 16px;
     font-weight: bold;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    padding: 10px;
 }
 
 .gotoerror-code {
     overflow: auto;
+}
+
+.gotoerror-stackoverflow-btn {
+    border: 0;
+    font-size: 11px;
+    margin: 0px 4px;
+    padding: 6px;
+    text-transform: uppercase;
+    background-color: #f7f7f7;
+    box-shadow: 0px 3px 4px #aaa;
+    user-select: none;
+}
+
+.gotoerror-stackoverflow-btn:hover {
+    background-color: #e0e0e0;
 }

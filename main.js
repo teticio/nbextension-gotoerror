@@ -28,6 +28,7 @@ define([
 
     var options = {
         prefix: '',
+        prefix2: '',
     };
     
     var Gotoerror = function (nb) {
@@ -35,7 +36,7 @@ define([
         this.events = nb.events;
         
         this.element = $("<div id='nbextension-gotoerror'>").addClass("input_area");
-        this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-btn gotoerror-close");
+        this.close_button = $("<i>").addClass("fa fa-window-close gotoerror-close-btn");
         this.element.append(this.close_button);
         this.close_button.click(function () {
             gotoerror.collapse();
@@ -65,11 +66,11 @@ define([
 
     Gotoerror.prototype.expand = function (file_path, line_number, url) {
         this.collapsed = false;
-        this.element.css('height', '100%');
+        this.element.css('height', $("#site").height());
         this.close_button.show();
         $("#notebook-container").css('margin-left', 0);
         
-        $(".gotoerror-filename").html('<a target="_blank" href="' + url + '">' + file_path + '</a>');
+        $(".gotoerror-filename").html('<a target="_blank" href="' + url + '">' + file_path.replace(/^.*[\\\/]/, '') + '</a>');
         // adjust height accordingly
         $('.gotoerror-code').height($("#nbextension-gotoerror").height() - $(".gotoerror-filename").outerHeight(true));
         var base_url = utils.get_body_data('baseUrl');
@@ -97,7 +98,7 @@ define([
             }
         });
         this.events.on('file_load_failed.Editor', function (evt, model) {
-            $(".gotoerror-code").html('Error loading file')
+            $(".gotoerror-code").html('<div style="margin-left: 10px; font-size: 16px">Error loading file, see <a href="https://github.com/teticio/nbextension-gotoerror" target="_blank">README</a> for help</div>')
         });
         this.editor.load();
     };
@@ -135,10 +136,18 @@ define([
                             var formated_filename = s.substring(start.index, end.index + end[0].length);
                             var filename = s.substring(start.index + start[0].length, end.index).replace(/\\/g, '/');
                             var root = options.prefix.replace(/\\/g, '/');
+                            var root2 = options.prefix2.replace(/\\/g, '/');
+                            var match = filename.search(root);
+                            var match2 = filename.search(root2);
+                            if (match < 0) {
+                                if (match2 >= 0) {
+                                    root = root2;
+                                    match = match2;
+                                }
+                            }
 
                             // if it is in site-packages, create a link to it
-                            var match = filename.search(root);
-                            if (match > -1) {
+                            if (match >= 0) {
                                 var file_path = filename.replace(root, '');
                                 var url = window.location.href.split('/');
                                 var url = url[0] + '//' + url[2] + ('/edit/' + file_path).replace('//', '/');
@@ -157,6 +166,7 @@ define([
                                 }
 
                                 link.click(new Function("gotoerror.expand('" + file_path + "', " + line_number + ", '" + url + "')"));
+                                link.css('cursor', 'pointer');
                                 link.append(rest_of_line);
                                 line.append(link);
                                 subarea.append(line);
@@ -171,7 +181,20 @@ define([
                     subarea.append($("<pre/>").html(utils.fixConsole(s)));
                 }
                 
-                subarea.append('\n');
+                 // add stack overflow button
+                try {
+                    var search_text = escape(tb[tb.length - 1].replace(/\x1b\[(.*?)([@-~])/g, ''));
+                    var stackoverflow_button = $("<button/>").addClass("gotoerror-stackoverflow-btn");
+                    stackoverflow_button.click(function() {
+                        window.open('https://www.google.com/search?q=' + search_text + '+site:stackoverflow.com');
+                    });
+                    stackoverflow_button.text("Search Stack Oveflow");
+                    subarea.append($("<p/>").html('&nbsp'));
+                    subarea.append(stackoverflow_button);
+                } catch(err) {
+                    console.error('nbextension gotoerror', 'unhandled error:', err);
+                }                    
+                    
                 toinsert.append(subarea);
                 toinsert.addClass("output_error");
                 this._safe_append(toinsert);
