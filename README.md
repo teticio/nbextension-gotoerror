@@ -8,6 +8,11 @@ Clone the repo:
 
 ```bash
 git clone git://github.com/teticio/nbextension-gotoerror
+```
+
+Install the extension:
+
+```bash
 jupyter nbextension install nbextension-gotoerror
 ```
 
