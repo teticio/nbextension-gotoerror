@@ -147,7 +147,7 @@ define([
                             }
 
                             // if it is in site-packages, create a link to it
-                            if (match >= 0) {
+                            if (root != '' && match >= 0) {
                                 var file_path = filename.replace(root, '');
                                 var url = window.location.href.split('/');
                                 var url = url[0] + '//' + url[2] + ('/edit/' + file_path).replace('//', '/');
