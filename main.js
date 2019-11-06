@@ -67,6 +67,7 @@ define([
     Gotoerror.prototype.expand = function (file_path, line_number, url) {
         this.collapsed = false;
         this.element.css('height', $("#site").height());
+        this.element.css('display', 'block');
         this.close_button.show();
         $("#notebook-container").css('margin-left', 0);
         
@@ -106,7 +107,7 @@ define([
     Gotoerror.prototype.collapse = function () {
         this.collapsed = true;
         $("#notebook-container").css('margin-left', 'auto');
-        this.element.css('height', '0');
+        this.element.css('display', 'none');
         this.close_button.hide();
     };
 
