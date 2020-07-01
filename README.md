@@ -13,7 +13,7 @@ git clone git://github.com/teticio/nbextension-gotoerror
 Install the extension:
 
 ```bash
-jupyter nbextension install nbextension-gotoerror
+jupyter nbextension install nbextension-gotoerror --user
 ```
 
 Enable the extension:
