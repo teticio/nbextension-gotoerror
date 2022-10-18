@@ -138,7 +138,6 @@ define([
                             var root2 = options.prefix2.replace(/\\/g, '/');
                             var match = filename.search(root);
                             var match2 = filename.search(root2);
-
                             if (match < 0) {
                                 if (match2 >= 0) {
                                     root = root2;
