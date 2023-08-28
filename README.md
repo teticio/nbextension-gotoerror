@@ -2,6 +2,7 @@
 
 Clicking on filenames in the stack trace opens up the relevant source file.
 
+(This is the Classic Jupyter Notebook extension - for JupyterLab or Notebook 7, please use [jupyter-stack-trace](https://github.com/teticio/jupyter-stack-trace))
 ## Install
 
 Clone the repo:
